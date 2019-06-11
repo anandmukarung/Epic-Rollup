@@ -1,7 +1,7 @@
 import ct_atlassian_tools as atl
 from jira import JIRA
 
-# this
+# Creating a conflict
 
 def main():
     authentication = atl.get_authentication()
