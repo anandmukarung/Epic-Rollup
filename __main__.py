@@ -1,13 +1,13 @@
 import ct_atlassian_tools as atl
 from jira import JIRA
 
-# Creating a conflict
+# Creating a conflict in commit
 
+jira_connection = atl.connect_to_jira(authentication)
+# connection = JIRA("https://jira.dev.countertack.com")
+projects = jira_connection.projects()
 def main():
     authentication = atl.get_authentication()
-    jira_connection = atl.connect_to_jira(authentication)
-    # connection = JIRA("https://jira.dev.countertack.com")
-    projects = jira_connection.projects()
     # for p in projects:
     #   print(p)
     sandbox = jira_connection.project("SAND")
