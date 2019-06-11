@@ -4,7 +4,7 @@ from jira import JIRA
 def main():
 
 
-# connecting to Jira
+# connecting to Jira\
 
     authentication = atl.get_authentication()
     jira_connection = atl.connect_to_jira(authentication)
