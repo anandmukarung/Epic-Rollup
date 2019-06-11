@@ -1,7 +1,7 @@
 import ct_atlassian_tools as atl
 from jira import JIRA
 
-# this stuff here
+# commit
 
 def main():
     authentication = atl.get_authentication()
