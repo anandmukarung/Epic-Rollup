@@ -35,7 +35,9 @@ def main():
         logged_raw = issue.fields.aggregatetimespent
         print('{} original: {}\t remaining: {}'.format(issue, original_raw, remaining_raw))
         if original_raw is None:
-            if remaining_raw is not None and logged_raw is None:
+            if remaining_raw is not None and logged_raw is not None:
+                original_raw = int(remaining_raw) + int(logged_raw)
+            elif remaining_raw is not None and logged_raw is None:
                 original_raw = remaining_raw
             elif logged_raw is not None and remaining_raw is None:
                 original_raw = logged_raw
