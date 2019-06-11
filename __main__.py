@@ -2,14 +2,10 @@ import ct_atlassian_tools as atl
 from jira import JIRA
 
 def main():
-
-
-
-# connecting to Jira
-
+    # connecting to Jira
     authentication = atl.get_authentication()
     jira_connection = atl.connect_to_jira(authentication)
-    projects = jira_connection.projects()#
+    #projects = jira_connection.projects()
 
     sandbox = jira_connection.project("SAND")
     jql = "project=" + str(sandbox)
