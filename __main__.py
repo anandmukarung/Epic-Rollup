@@ -32,18 +32,17 @@ def main():
         original_raw = issue.fields.aggregatetimeoriginalestimate
         remaining_raw = issue.fields.aggregatetimeestimate
         logged_raw = issue.fields.aggregatetimespent
-        print('{} original: {}\t remaining: {}'.format(issue, original_raw, remaining_raw))
+        print('{} original: {}\t remaining: {}:\t logged: {}'.format(issue, original_raw, remaining_raw, logged_raw))
+        if remaining_raw is None:
+            remaining_raw = 0
+        if logged_raw is None:
+            logged_raw = 0
         if original_raw is None:
             if remaining_raw is not None and logged_raw is not None:
                 original_raw = int(remaining_raw) + int(logged_raw)
-            elif remaining_raw is not None and logged_raw is None:
-                original_raw = remaining_raw
-            elif logged_raw is not None and remaining_raw is None:
-                original_raw = logged_raw
             else:
                 original_raw = 0
-        if remaining_raw is None:
-            remaining_raw = 0
+
         total_estimated_time += int(original_raw)
         total_remaining_time += int(remaining_raw)
 
