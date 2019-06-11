@@ -33,6 +33,11 @@ def main():
         remaining_raw = issue.fields.aggregatetimeestimate
         print('o = ' + str(original_raw))
         print('r = ' + str(remaining_raw))
+        if original_raw is None:
+            if remaining_raw is not None:
+                original_raw = remaining_raw
+            else:
+                original_raw = 0
         total_estimated_time += int(original_raw)
         total_remaining_time += int(remaining_raw)
 
