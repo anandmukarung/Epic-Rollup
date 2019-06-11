@@ -32,8 +32,7 @@ def main():
         issue = jira_connection.issue(s.id)
         original_raw = issue.fields.aggregatetimeoriginalestimate
         remaining_raw = issue.fields.aggregatetimeestimate
-        print('o = ' + str(original_raw))
-        print('r = ' + str(remaining_raw))
+        print('{} original: {}\t remaining: {}'.format(issue, original_raw, remaining_raw))
         if original_raw is None:
             if remaining_raw is not None:
                 original_raw = remaining_raw
