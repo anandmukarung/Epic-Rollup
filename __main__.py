@@ -23,7 +23,8 @@ def main():
             epic_issues.append(issue)
 
     # Getting the child stories for the epic
-    jql = '"Epic Link"=' + str(epic_issues[1])
+    epic = "SAND-2"
+    jql = '"Epic Link"=' + epic
     linked_stories = jira_connection.search_issues(jql)
 
     # Summing up all the times for the child stories
@@ -33,13 +34,19 @@ def main():
         issue = jira_connection.issue(story.id)
         original_raw = issue.fields.aggregatetimeoriginalestimate
         remaining_raw = issue.fields.aggregatetimeestimate
-        print('o = ' + str(original_raw))
-        print('r = ' + str(remaining_raw))
+        logged_raw = issue.fields.aggregatetimespent
+        print('{} original: {}\t remaining: {}'.format(issue, original_raw, remaining_raw))
         if original_raw is None:
-            if remaining_raw is not None:
+            if remaining_raw is not None and logged_raw is not None:
+                original_raw = int(remaining_raw) + int(logged_raw)
+            elif remaining_raw is not None and logged_raw is None:
                 original_raw = remaining_raw
+            elif logged_raw is not None and remaining_raw is None:
+                original_raw = logged_raw
             else:
                 original_raw = 0
+        if remaining_raw is None:
+            remaining_raw = 0
         total_estimated_time += int(original_raw)
         total_remaining_time += int(remaining_raw)
 
