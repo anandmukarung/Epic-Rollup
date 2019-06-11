@@ -21,7 +21,8 @@ def main():
             epics.append(i)
 
     # Getting the child stories for the epic
-    jql = '"Epic Link"=' + str(epics[1])
+    epic = "SAND-2"
+    jql = '"Epic Link"=' + epic
     linked_stories = jira_connection.search_issues(jql)
 
     # Summing up all the times for the child stories
@@ -38,6 +39,8 @@ def main():
                 original_raw = remaining_raw
             else:
                 original_raw = 0
+        if remaining_raw is None:
+            remaining_raw = 0
         total_estimated_time += int(original_raw)
         total_remaining_time += int(remaining_raw)
 
