@@ -10,16 +10,16 @@ def connect_to_jira():
 
 
 def get_projects(jira_connection):
-    projects_dict = {"SAND", "SENTINEL"}
+    projects_list = ["SAND", "SENTINEL"]
     projects = []
-    for p in projects_dict:
+    for p in projects_list:
         j_p = jira_connection.project(p)
         projects.append(j_p)
     return projects
 
 
 def get_epics(jira_connection, project):
-    jql = "project="+str(project)
+    jql = "project=" + str(project)
     epic_issues = []
     all_issues = jira_connection.search_issues(jql)
     # ---------------------------------------------------------------
@@ -42,12 +42,15 @@ def get_aggregate_times(jira_connection, child_issues):
     total_estimated_time = 0
     total_remaining_time = 0
     total_logged_time = 0
+    print('Child Issues:**********************************************************')
     for story in child_issues:
         issue = jira_connection.issue(story.id)
         original_raw = issue.fields.aggregatetimeoriginalestimate
         remaining_raw = issue.fields.aggregatetimeestimate
         logged_raw = issue.fields.aggregatetimespent
-        print('{} original: {}\t remaining: {}:\t logged: {}'.format(issue, original_raw, remaining_raw, logged_raw))
+        issue_type = issue.fields.issuetype
+        print('{} Type: {}\t original: {}\t remaining: {}:\t logged: {}'.format(issue, issue_type, original_raw,
+                                                                                remaining_raw, logged_raw))
         if remaining_raw is None:
             remaining_raw = 0
         if logged_raw is None:
@@ -61,6 +64,7 @@ def get_aggregate_times(jira_connection, child_issues):
         total_estimated_time += int(original_raw)
         total_remaining_time += int(remaining_raw)
         total_logged_time += int(logged_raw)
+    print('End of Child Issues ****************************************************')
     time_stats = (total_estimated_time, total_remaining_time, total_logged_time)
     return time_stats
 
@@ -74,11 +78,21 @@ def main():
         print('PROJECT: {}'.format(project))
         epics = get_epics(jira_connection, project)
         for epic in epics:
+            summary = epic.fields.summary
+            print('Epic: {}\n Summary: {}\n'.format(epic, summary))
             child_issues = get_child_issues(jira_connection, epic)
-            total_estimated_time, total_remaining_time, total_logged_time = get_aggregate_times(jira_connection, child_issues,)
-            description = epic.fields.description
-            print('{}: \nDescription: {}\nTotal Estimated: {}\nTotal Remaining: {} \nTotal Logged: {}'.format(
-                epic, description, total_estimated_time, total_remaining_time, total_logged_time))
+            total_estimated_time, total_remaining_time, total_logged_time = get_aggregate_times(jira_connection,
+                                                                                                child_issues)
+
+            if total_estimated_time == 0:
+                percent = 0
+            else:
+                percent = (1 - (total_remaining_time / total_estimated_time)) * 100
+                percent = percent - (percent % 10)
+            print('\nTotal Estimated: {}\nTotal Remaining: {}\nTotal Logged: '
+                  '{}\nPercent Complete: {}%'.format(total_estimated_time,
+                                                     total_remaining_time, total_logged_time, percent))
+
 
 '''
     # 34710: id for Sand - 2  (Scott is doing stuff with other epics, only work with Sand-2)
