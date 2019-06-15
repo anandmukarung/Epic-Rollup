@@ -1,33 +1,48 @@
 import ct_atlassian_tools as atl
 from jira import JIRA
 
-def main():
+
+def connect_to_jira():
     # connecting to Jira
     authentication = atl.get_authentication()
     jira_connection = atl.connect_to_jira(authentication)
-    #projects = jira_connection.projects()
+    return jira_connection
 
-    sandbox = jira_connection.project("SAND")
-    jql = "project=" + str(sandbox)
-    all_issues = jira_connection.search_issues(jql)
+
+def get_projects(jira_connection):
+    projects_dict = {"SAND", "SENTINEL"}
+    projects = []
+    for p in projects_dict:
+        j_p = jira_connection.project(p)
+        projects.append(j_p)
+    return projects
+
+
+def get_epics(jira_connection, project):
+    jql = "project="+str(project)
     epic_issues = []
-
-# ---------------------------------------------------------------
-# searching for all issues  in sandbox and adding it to a list of epic issues
+    all_issues = jira_connection.search_issues(jql)
+    # ---------------------------------------------------------------
+    # searching for all issues in sandbox and adding it to a list of epic issues
     for issue in all_issues:
         issue_type = str(issue.fields.issuetype)
         if issue_type == "Epic":
             epic_issues.append(issue)
+    return epic_issues
 
-    # Getting the child stories for the epic
-    epic = "SAND-2"
-    jql = '"Epic Link"=' + epic
-    linked_stories = jira_connection.search_issues(jql)
 
+def get_child_issues(jira_connection, epic):
+    jql = '"Epic Link"=' + str(epic)
+    child_issues = jira_connection.search_issues(jql)
+    return child_issues
+
+
+def get_aggregate_times(jira_connection, child_issues):
     # Summing up all the times for the child stories
     total_estimated_time = 0
     total_remaining_time = 0
-    for story in linked_stories:
+    total_logged_time = 0
+    for story in child_issues:
         issue = jira_connection.issue(story.id)
         original_raw = issue.fields.aggregatetimeoriginalestimate
         remaining_raw = issue.fields.aggregatetimeestimate
@@ -45,10 +60,27 @@ def main():
 
         total_estimated_time += int(original_raw)
         total_remaining_time += int(remaining_raw)
+        total_logged_time += int(logged_raw)
+    time_stats = (total_estimated_time, total_remaining_time, total_logged_time)
+    return time_stats
 
-    # The estimate and remaining are both given in seconds
-    print('total estimate: {} seconds\t remaining: {} seconds'.format(total_estimated_time, total_remaining_time))
 
+def main():
+    jira_connection = connect_to_jira()
+    # sandbox = jira_connection.project("SAND")
+    projects = get_projects(jira_connection)
+    for project in projects:
+        print('**********************************************************************************************\n')
+        print('PROJECT: {}'.format(project))
+        epics = get_epics(jira_connection, project)
+        for epic in epics:
+            child_issues = get_child_issues(jira_connection, epic)
+            total_estimated_time, total_remaining_time, total_logged_time = get_aggregate_times(jira_connection, child_issues,)
+            description = epic.fields.description
+            print('{}: \nDescription: {}\nTotal Estimated: {}\nTotal Remaining: {} \nTotal Logged: {}'.format(
+                epic, description, total_estimated_time, total_remaining_time, total_logged_time))
+
+'''
     # 34710: id for Sand - 2  (Scott is doing stuff with other epics, only work with Sand-2)
     for epic_issue in epic_issues:
         print(epic_issue.id)
@@ -66,5 +98,5 @@ def main():
         # e.update(timetracking={'originalEstimate': '20h'})
         # e.update(timetracking={'originalEstimate': '20h', 'remainingEstimate': '10h'})
 
-
+'''
 main()
