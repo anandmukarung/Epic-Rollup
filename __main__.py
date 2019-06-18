@@ -2,14 +2,15 @@ import ct_atlassian_tools as atl
 from jira import JIRA
 
 
+# connecting to Jira
 def connect_to_jira():
-    # connecting to Jira
     authentication = atl.get_authentication()
     jira_connection = atl.connect_to_jira(authentication)
     return jira_connection
 
-
+# return list of projects specifically for Sand and Sentinel
 def get_projects(jira_connection):
+
     projects_list = ["SAND", "SENTINEL"]
     projects = []
     for p in projects_list:
@@ -19,11 +20,13 @@ def get_projects(jira_connection):
 
 
 def get_epics(jira_connection, project):
-    jql = "project=" + str(project)
+
+    jql = "project= " + str(project) + " AND issuetype = Epic"
     epic_issues = []
     all_issues = jira_connection.search_issues(jql)
     # ---------------------------------------------------------------
-    # searching for all issues in sandbox and adding it to a list of epic issues
+    # searching for all issues in project and adding it to a list of epic issues
+
     for issue in all_issues:
         issue_type = str(issue.fields.issuetype)
         if issue_type == "Epic":
